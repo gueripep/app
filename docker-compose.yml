@@ -1,0 +1,20 @@
+services:
+  backend:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - UVICORN_RELOAD=true
+    volumes:
+      - .:/app
+    tty: true
+  meilisearch:
+    image: getmeili/meilisearch:v1.14
+    ports:
+      - "7700:7700"
+    volumes:
+      - ./meili_data:/meili_data
+    environment:
+      - MEILI_MASTER_KEY=masterKey
+      - VITE_MEILISEARCH_HOST=http://meilisearch:7700
+      - VITE_MEILISEARCH_API_KEY=masterKey
