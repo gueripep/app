@@ -1,18 +1,23 @@
-import pdfplumber # type: ignore
+import textract # type: ignore
 import os
 
-def fetch_all_files() -> list:
-    """Fetch all files from pdfs directory recursively."""
+SUPPORTED_EXTENSIONS = [
+    ".csv", ".doc", ".docx", ".eml", ".epub", ".gif", ".jpg", ".jpeg", ".json",
+    ".html", ".htm", ".mp3", ".msg", ".odt", ".ogg", ".pdf", ".png", ".pptx",
+    ".ps", ".rtf", ".tiff", ".tif", ".txt", ".wav", ".xlsx", ".xls"
+]
+
+def fetch_all_filenames() -> list:
     files = []
     for root, _, filenames in os.walk("pdfs"):
         for filename in filenames:
-            if filename.endswith(".pdf"):
+            if any(filename.lower().endswith(ext) for ext in SUPPORTED_EXTENSIONS):
                 files.append(os.path.join(root, filename))
     return files
 
 def extract_text_from_all_pdfs() -> list:
     """Extract text from all PDFs in the pdfs directory."""
-    pdf_files = fetch_all_files()
+    pdf_files = fetch_all_filenames()
     extracted_texts = []
     for pdf_file in pdf_files:
         try:
@@ -29,10 +34,8 @@ def extract_text_from_all_pdfs() -> list:
 
 
 def extract_data_from_pdf(filename: str) -> str:    
-    with pdfplumber.open(filename) as pdf:
-        full_text = ''
-        for page in pdf.pages:
-            full_text += page.extract_text()  # Add text from each page
+    full_text = textract.process(filename).decode('utf-8')
+
     document = {
         "filename": filename,
         "content": full_text,

@@ -1,0 +1,75 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f7f7f7;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+#search-input {
+    width: 600px;
+    max-width: 90vw;
+    font-size: 24px;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+#search-btn {
+    font-size: 20px;
+    padding: 12px 24px;
+    margin-left: 10px;
+    border-radius: 8px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+#search-btn:hover {
+    background-color: #45a049;
+}
+
+.pdf-result {
+    margin-top: 15px;
+    padding: 10px;
+    background-color: #fff;
+    border-left: 4px solid #4CAF50;
+    cursor: pointer;
+    max-width: 90vw;
+}
+
+.pdf-result:hover {
+    background-color: #f1f1f1;
+}
+
+#results {
+    margin-top: 30px;
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+#pdf-preview {
+    margin-top: 40px;
+    width: 100%;
+    max-width: 90vw;
+}
+
+.flex {
+    display: flex;
+    justify-content: space-between;
+}
+
+em {
+    background-color: yellow;
+    font-style: normal;
+    font-weight: bold;
+}

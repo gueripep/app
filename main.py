@@ -1,14 +1,29 @@
 from fastapi import FastAPI # type: ignore
 from pydantic import BaseModel # type: ignore
 from meilisearch import Client # type: ignore
-from extractor import extract_data_from_pdf, extract_text_from_all_pdfs
+from extractor import extract_data_from_pdf, fetch_all_filenames
 from indexer import create_index, index_pdf_text
 from typing import Union
-from db import get_all_files, insert_file, get_file_by_name, update_file
+from db import insert_file, get_file_db_info_by_name, update_file
+from fastapi.middleware.cors import CORSMiddleware # type: ignore
 import sqlite3
+import os
+from fastapi.responses import FileResponse # type: ignore
 
 
 app = FastAPI()
+
+origins = [
+    "http://127.0.0.1:5500",
+    "null" 
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Meilisearch client
 client = Client('http://meilisearch:7700', "masterKey")
@@ -25,29 +40,35 @@ async def startup():
 
 def update_all_indexes():
     """Update all indexes with the latest PDFs."""
-    pdfs_contents = extract_text_from_all_pdfs()
-    for pdf in pdfs_contents:
-        existing_file = get_file_by_name(pdf["filename"])
+    pdfs_filenames = fetch_all_filenames()
+    for pdf_name in pdfs_filenames:
+        file_db_info = get_file_db_info_by_name(pdf_name)
         # update the file if there is a more recent version
-        if existing_file:
-            if existing_file[3] != pdf["last_modified"]:
-                pdf_id = existing_file[0]
-                update_file(pdf_id, pdf["filename"], pdf["content"], pdf["last_modified"])
-                index_pdf_text(client, index_name, pdf_id, pdf["content"], pdf["filename"])
+        if file_db_info:
+            file_last_modified = os.path.getmtime(pdf_name)
+            if file_db_info[3] != file_last_modified:
+                pdf = extract_data_from_pdf(pdf_name)
+                pdf_id = file_db_info[0]
+                update_file(pdf_id, pdf_name, pdf["content"], pdf["last_modified"])
+                index_pdf_text(client, index_name, pdf_id, pdf["content"], pdf_name)
             else:
                 # skip the file if it is already indexed
-                print(f"File {pdf['filename']} is already indexed.")
+                print(f"File {pdf_name} is already indexed.")
         else:
             # insert the file if it doesn't exist
-            document = insert_file(pdf["filename"], pdf["content"], pdf["last_modified"])
-            index_pdf_text(client, index_name, document["id"], pdf["content"], pdf["filename"])
+            pdf = extract_data_from_pdf(pdf_name)
+            document = insert_file(pdf_name, pdf["content"], pdf["last_modified"])
+            index_pdf_text(client, index_name, document["id"], pdf["content"], pdf_name)
     
 
 @app.post("/search")
 async def search(request: SearchRequest):
     """Search PDFs with a query."""
     index = client.index(index_name)
-    results = index.search(request.query)
+    results = index.search(request.query, {
+        "attributesToHighlight": ["*"]
+    })
+    print(f"Search results: {results}")
     return results
 
 @app.post("/index_pdf")
@@ -69,3 +90,22 @@ def list_files():
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM files")
     return cursor.fetchall()
+
+
+# Endpoint to serve a PDF
+@app.get("/pdfs/{pdf_filename}")
+async def get_pdf(pdf_filename: str):
+    pdf_path = os.path.join('pdfs', pdf_filename)
+
+    # Check if the file exists
+    if not os.path.exists(pdf_path):
+        return {"error": "PDF not found"}
+
+    if pdf_filename.endswith('.pdf'):
+        return FileResponse(pdf_path, media_type='application/pdf')
+    else:
+        return FileResponse(
+            pdf_path,
+            media_type='application/octet-stream',
+            headers={"Content-Disposition": f"attachment; filename={pdf_filename}"}
+        )

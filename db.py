@@ -49,6 +49,6 @@ def update_file(file_id, filename, content, last_modified):
     ''', (filename, content, last_modified, file_id))
     conn.commit()
 
-def get_file_by_name(filename):
+def get_file_db_info_by_name(filename):
     c.execute('SELECT * FROM files WHERE filename = ?', (filename,))
     return c.fetchone()
