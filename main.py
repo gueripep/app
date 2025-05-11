@@ -2,9 +2,9 @@ from fastapi import FastAPI # type: ignore
 from pydantic import BaseModel # type: ignore
 from meilisearch import Client # type: ignore
 from extractor import extract_data_from_pdf, fetch_all_filenames
-from indexer import create_index, index_pdf_text
+from indexer import create_index, index_pdf_text, delete_document
 from typing import Union
-from db import insert_file, get_file_db_info_by_name, update_file
+from db import insert_file, get_file_db_info_by_name, update_file, get_all_files_from_db, delete_file
 from fastapi.middleware.cors import CORSMiddleware # type: ignore
 import sqlite3
 import os
@@ -34,9 +34,27 @@ class SearchRequest(BaseModel):
 
 # Create index on app startup
 @app.on_event("startup")
-async def startup():
+def startup():
     create_index(client, index_name)
+    delete_document_and_db_entry_for_deleted_files()
     update_all_indexes()
+    
+def delete_document_and_db_entry_for_deleted_files():
+    """Delete indexes for files that have been deleted."""
+    db_files = get_all_files_from_db()
+    pdfs_filenames = fetch_all_filenames()
+    
+    # Find files that are in the database but not in the filesystem
+    for file in db_files:
+        file_name = file[1]
+        print(f"File name: {file_name}")
+        if file_name not in pdfs_filenames:
+            file_id = file[0]
+            print(f"Deleting {file_name} from database and index.")
+            print(f"File ID: {file_id}")
+            delete_document(client, index_name, file_id)
+            delete_file(file_id)
+            print(f"Deleted {file_name} document and from database.")
 
 def update_all_indexes():
     """Update all indexes with the latest PDFs."""
@@ -68,7 +86,6 @@ async def search(request: SearchRequest):
     results = index.search(request.query, {
         "attributesToHighlight": ["*"]
     })
-    print(f"Search results: {results}")
     return results
 
 @app.post("/index_pdf")

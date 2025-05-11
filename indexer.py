@@ -11,7 +11,10 @@ def index_pdf_text(client: Client, index_name: str, pdf_id: str, pdf_text: str, 
         "filename": pdf_filename,
         "text": pdf_text
     }
-    print(f"Le document avec pour id {pdf_id} a comme texte : {pdf_text}")
     index = client.index(index_name)
-    print(f"Index {index}")
     index.add_documents([document])
+    
+def delete_document(client: Client, index_name: str, document_id: str):
+    """Delete a document from the index."""
+    index = client.index(index_name)
+    index.delete_document(document_id)

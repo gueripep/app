@@ -3,7 +3,7 @@ import sqlite3
 # Set up SQLite DB (if you don't have one)
 conn = sqlite3.connect('data.db')
 c = conn.cursor()
-print("hello!!!")
+
 # Create table for storing file info
 c.execute('''
 CREATE TABLE IF NOT EXISTS files (
@@ -18,8 +18,6 @@ CREATE TABLE IF NOT EXISTS files (
 def insert_file(filename, content, last_modified):
     print("Inserting file into DB")
     print(f"filename: {filename}")
-    print(f"content: {content}")
-    print(f"last_modified: {last_modified}")
     c.execute('''
     INSERT INTO files (filename, content, last_modified)
     VALUES (?, ?, ?)
@@ -33,7 +31,7 @@ def insert_file(filename, content, last_modified):
     }
 
 # Function to get all files
-def get_all_files():
+def get_all_files_from_db():
     c.execute('SELECT * FROM files')
     return c.fetchall()
 
@@ -52,3 +50,7 @@ def update_file(file_id, filename, content, last_modified):
 def get_file_db_info_by_name(filename):
     c.execute('SELECT * FROM files WHERE filename = ?', (filename,))
     return c.fetchone()
+
+def delete_file(file_id):
+    c.execute('DELETE FROM files WHERE id = ?', (file_id,))
+    conn.commit()
