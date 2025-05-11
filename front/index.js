@@ -11,6 +11,12 @@ async function fetchSearchResults(query) {
     return data;
 }
 
+document.getElementById('search-input').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+        document.getElementById('search-btn').click();
+    }
+});
+
 document.getElementById('search-btn').addEventListener('click', async () => {
     const query = document.getElementById('search-input').value;
     if (!query) return;

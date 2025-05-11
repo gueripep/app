@@ -1,37 +1,36 @@
-<!DOCTYPE html>
-<html lang="en">
+    <!DOCTYPE html>
+    <html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Files Indexer</title>
-    <link rel="stylesheet" href="style.css">
-</head>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Files Indexer</title>
+        <link rel="stylesheet" href="style.css">
+    </head>
 
-<body>
-
-    <h1>Chercher des fichiers</h1>
-    <div class="flex">
-        <input type="text" id="search-input" placeholder="Search for PDFs..." />
-        <button id="search-btn">Search</button>
-    </div>
-
-
-    <div id="results"></div>
-
-    <script src="index.js"></script>
-
-
-    <template id="result-template">
-        <div class="pdf-result">
-            <h3 class="name-container">
-                <span class="name"></span>
-            </h3>
-            <div class="content-container">
-                <span class="content"></span>
+    <body>
+        <div class="wrapper">
+            <h1>Chercher des fichiers</h1>
+            <div class="flex">
+                <input type="text" id="search-input" placeholder="Chercher des fichiers..." />
+                <button id="search-btn">Rechercher</button>
             </div>
+            <div id="results"></div>
         </div>
-    </template>
-</body>
 
-</html>
+        <script src="index.js"></script>
+
+
+        <template id="result-template">
+            <div class="pdf-result">
+                <h3 class="name-container">
+                    <span class="name"></span>
+                </h3>
+                <div class="content-container">
+                    <span class="content"></span>
+                </div>
+            </div>
+        </template>
+    </body>
+
+    </html>

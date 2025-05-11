@@ -5,14 +5,21 @@ body {
     flex-direction: column;
     align-items: center;
     padding: 40px;
+    
 }
-
+.wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    width: 80%;
+}
 h1 {
     margin-bottom: 20px;
+    align-self: flex-start;
 }
 
 #search-input {
-    width: 600px;
+    flex: 2;
     max-width: 90vw;
     font-size: 24px;
     padding: 15px;
@@ -42,7 +49,7 @@ h1 {
     background-color: #fff;
     border-left: 4px solid #4CAF50;
     cursor: pointer;
-    max-width: 90vw;
+    border-radius: 10px;
 }
 
 .pdf-result:hover {
@@ -51,7 +58,7 @@ h1 {
 
 #results {
     margin-top: 30px;
-    width: 80%;
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: stretch;
@@ -66,6 +73,7 @@ h1 {
 .flex {
     display: flex;
     justify-content: space-between;
+    width: 100%;
 }
 
 em {
